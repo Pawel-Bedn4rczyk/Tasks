@@ -15,6 +15,7 @@ export interface ITask {
 
 interface ITaskProps extends ITask {
   onDeleted: () => void;
+  onEdit: (task: ITask) => void;
 }
 
 const priorityColors: Record<ITask["priority"], string> = {
@@ -36,9 +37,11 @@ export function Task({
   title,
   description,
   priority,
+  column,
   created_at,
   updated_at,
   onDeleted,
+  onEdit,
 }: ITaskProps) {
   const priorityColor = priorityColors[priority];
   const wasEdited = updated_at && updated_at !== created_at;
@@ -53,9 +56,21 @@ export function Task({
     <Card
       radius="md"
       p="md"
+      onClick={() =>
+        onEdit({
+          id,
+          title,
+          description,
+          priority,
+          column,
+          created_at,
+          updated_at,
+        })
+      }
       style={{
         backgroundColor: colors.surface,
         border: `1px solid ${colors.border}`,
+        cursor: "pointer",
       }}
     >
       <Stack gap="xs">
@@ -75,7 +90,10 @@ export function Task({
             variant="subtle"
             color="gray"
             size="sm"
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
           >
             <IconTrash size={14} />
           </ActionIcon>

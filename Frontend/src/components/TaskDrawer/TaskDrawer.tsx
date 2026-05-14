@@ -8,13 +8,14 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useState } from "react";
-import { createTask } from "../../api";
+import { useEffect, useState } from "react";
+import { createTask, updateTask } from "../../api";
 import { type ITask } from "../Task/Task";
 
 interface ITaskDrawerProps {
   opened: boolean;
   column: ITask["column"];
+  task?: ITask;
   onClose: () => void;
   onCreated: () => void;
 }
@@ -25,8 +26,15 @@ interface ITaskFormValues {
   priority: ITask["priority"];
 }
 
-export function TaskDrawer({ opened, column, onClose, onCreated }: ITaskDrawerProps) {
+export function TaskDrawer({
+  opened,
+  column,
+  task,
+  onClose,
+  onCreated,
+}: ITaskDrawerProps) {
   const [loading, setLoading] = useState(false);
+  const isEditing = !!task;
 
   const form = useForm<ITaskFormValues>({
     initialValues: {
@@ -36,13 +44,26 @@ export function TaskDrawer({ opened, column, onClose, onCreated }: ITaskDrawerPr
     },
   });
 
+  useEffect(() => {
+    if (task) {
+      form.setValues({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+      });
+    }
+  }, [task]);
+
   async function handleSubmit(values: ITaskFormValues) {
     setLoading(true);
 
-    const task = await createTask({ ...values, column });
+    const result = isEditing
+      ? await updateTask(task.id, values)
+      : await createTask({ ...values, column });
+
     setLoading(false);
 
-    if (task) {
+    if (result) {
       form.reset();
       onCreated();
       onClose();
@@ -58,7 +79,7 @@ export function TaskDrawer({ opened, column, onClose, onCreated }: ITaskDrawerPr
     <Drawer
       opened={opened}
       onClose={handleClose}
-      title={<Text fw={600}>New task</Text>}
+      title={<Text fw={600}>{isEditing ? "Edit task" : "New task"}</Text>}
       position="right"
       size="md"
     >
@@ -81,7 +102,7 @@ export function TaskDrawer({ opened, column, onClose, onCreated }: ITaskDrawerPr
             {...form.getInputProps("priority")}
           />
           <Button type="submit" mt="sm" fullWidth loading={loading}>
-            Create task
+            {isEditing ? "Save changes" : "Create task"}
           </Button>
         </Stack>
       </form>

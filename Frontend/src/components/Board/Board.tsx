@@ -23,6 +23,7 @@ export function Board() {
   const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(
     null,
   );
+  const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
   function fetchTasks() {
     getTasks().then(setTasks);
@@ -74,6 +75,7 @@ export function Board() {
                     created_at={task.created_at}
                     updated_at={task.updated_at}
                     onDeleted={fetchTasks}
+                    onEdit={setEditingTask}
                   />
                 ))}
                 {col.id === "todo" && (
@@ -102,9 +104,13 @@ export function Board() {
       </Group>
 
       <TaskDrawer
-        opened={drawerColumn !== null}
+        opened={drawerColumn !== null || editingTask !== null}
         column={drawerColumn ?? "todo"}
-        onClose={() => setDrawerColumn(null)}
+        task={editingTask ?? undefined}
+        onClose={() => {
+          setDrawerColumn(null);
+          setEditingTask(null);
+        }}
         onCreated={fetchTasks}
       />
     </>

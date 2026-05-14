@@ -30,6 +30,19 @@ class TaskController extends Controller
         return response()->json($task, 201);
     }
 
+    public function update(Request $request, Task $task): JsonResponse
+    {
+        $validated = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'priority'    => 'required|in:High,Medium,Low',
+        ]);
+
+        $task = $this->taskService->update($task, $validated);
+
+        return response()->json($task);
+    }
+
     public function destroy(Task $task): JsonResponse
     {
         $this->taskService->delete($task);

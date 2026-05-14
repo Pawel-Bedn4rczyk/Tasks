@@ -12,6 +12,23 @@ export async function getTasks(): Promise<ITask[]> {
   }
 }
 
+export async function updateTask(
+  id: number,
+  data: Pick<ITask, "title" | "description" | "priority">,
+): Promise<ITask | null> {
+  try {
+    const res = await fetch(`${API_URL}/tasks/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  } catch (error) {
+    console.error("Failed to update task:", error);
+    return null;
+  }
+}
+
 export async function deleteTask(id: number): Promise<boolean> {
   try {
     await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
