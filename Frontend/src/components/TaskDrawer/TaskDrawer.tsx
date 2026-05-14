@@ -144,12 +144,17 @@ export function TaskDrawer({
               placeholder="Task title"
               {...form.getInputProps("title")}
             />
-            <Textarea
-              label="Description"
-              placeholder="Task description"
-              rows={4}
-              {...form.getInputProps("description")}
-            />
+            <Stack gap={4}>
+              <Textarea
+                label="Description"
+                placeholder="Task description"
+                rows={4}
+                {...form.getInputProps("description")}
+              />
+              <Text size="xs" c="dimmed">
+                {form.values.description.length} characters
+              </Text>
+            </Stack>
             <Select
               label="Priority"
               data={priorityOptions}
