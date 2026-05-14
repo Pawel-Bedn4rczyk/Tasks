@@ -35,10 +35,13 @@ const priorityColors: Record<ITask["priority"], string> = {
 };
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("pl-PL", {
+  return new Date(dateStr).toLocaleString("pl-PL", {
     day: "numeric",
     month: "short",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   });
 }
 
