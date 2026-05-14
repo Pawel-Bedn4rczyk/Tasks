@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('priority', ['High', 'Medium', 'Low'])->default('Medium');
+            $table->enum('priority', ['high', 'medium', 'low'])->default('medium');
             $table->enum('column', ['todo', 'in_progress', 'done'])->default('todo');
             $table->timestamps();
         });

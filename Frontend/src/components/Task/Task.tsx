@@ -18,7 +18,7 @@ export interface ITask {
   column: string;
   title: string;
   description: string;
-  priority: "High" | "Medium" | "Low";
+  priority: "high" | "medium" | "low";
   created_at: string;
   updated_at?: string;
 }
@@ -29,9 +29,15 @@ interface ITaskProps extends ITask {
 }
 
 const priorityColors: Record<ITask["priority"], string> = {
-  High: colors.red,
-  Medium: colors.yellow,
-  Low: colors.green,
+  high: colors.red,
+  medium: colors.yellow,
+  low: colors.green,
+};
+
+const priorityLabels: Record<ITask["priority"], string> = {
+  high: "High",
+  medium: "Medium",
+  low: "Low",
 };
 
 function formatDate(dateStr: string) {
@@ -120,7 +126,7 @@ export function Task({
                 border: "none",
               }}
             >
-              {priority}
+              {priorityLabels[priority]}
             </Badge>
             <ActionIcon
               variant="subtle"

@@ -30,6 +30,12 @@ interface ITaskFormValues {
   priority: ITask["priority"];
 }
 
+const priorityOptions = [
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+];
+
 export function TaskDrawer({
   opened,
   column,
@@ -46,7 +52,7 @@ export function TaskDrawer({
     initialValues: {
       title: "",
       description: "",
-      priority: "Medium",
+      priority: "medium" as ITask["priority"],
     },
   });
 
@@ -131,7 +137,7 @@ export function TaskDrawer({
             />
             <Select
               label="Priority"
-              data={["High", "Medium", "Low"]}
+              data={priorityOptions}
               {...form.getInputProps("priority")}
             />
             <Button type="submit" mt="sm" fullWidth loading={loading}>

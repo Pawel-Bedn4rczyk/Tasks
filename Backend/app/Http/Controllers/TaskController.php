@@ -21,7 +21,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'priority'    => 'required|in:High,Medium,Low',
+            'priority'    => 'required|in:high,medium,low',
             'column'      => 'required|in:todo,in_progress,done',
         ]);
 
@@ -46,7 +46,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'priority'    => 'required|in:High,Medium,Low',
+            'priority'    => 'required|in:high,medium,low',
         ]);
 
         $task = $this->taskService->update($task, $validated);
