@@ -15,4 +15,9 @@ class TaskService
     {
         return Task::create($data);
     }
+
+    public function delete(Task $task): void
+    {
+        $task->delete();
+    }
 }

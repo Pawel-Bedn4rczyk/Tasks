@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use App\Services\TaskService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,5 +28,12 @@ class TaskController extends Controller
         $task = $this->taskService->create($validated);
 
         return response()->json($task, 201);
+    }
+
+    public function destroy(Task $task): JsonResponse
+    {
+        $this->taskService->delete($task);
+
+        return response()->json(null, 204);
     }
 }

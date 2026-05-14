@@ -12,6 +12,16 @@ export async function getTasks(): Promise<ITask[]> {
   }
 }
 
+export async function deleteTask(id: number): Promise<boolean> {
+  try {
+    await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+    return true;
+  } catch (error) {
+    console.error("Failed to delete task:", error);
+    return false;
+  }
+}
+
 export async function createTask(
   data: Omit<ITask, "id" | "created_at" | "updated_at">,
 ): Promise<ITask | null> {

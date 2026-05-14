@@ -1,4 +1,6 @@
-import { Badge, Card, Stack, Text } from "@mantine/core";
+import { ActionIcon, Badge, Card, Group, Stack, Text } from "@mantine/core";
+import { IconTrash } from "@tabler/icons-react";
+import { deleteTask } from "../../api";
 import { colors } from "../../colors";
 
 export interface ITask {
@@ -9,6 +11,10 @@ export interface ITask {
   priority: "High" | "Medium" | "Low";
   created_at: string;
   updated_at?: string;
+}
+
+interface ITaskProps extends ITask {
+  onDeleted: () => void;
 }
 
 const priorityColors: Record<ITask["priority"], string> = {
@@ -26,14 +32,22 @@ function formatDate(dateStr: string) {
 }
 
 export function Task({
+  id,
   title,
   description,
   priority,
   created_at,
   updated_at,
-}: ITask) {
+  onDeleted,
+}: ITaskProps) {
   const priorityColor = priorityColors[priority];
   const wasEdited = updated_at && updated_at !== created_at;
+
+  function handleDelete() {
+    deleteTask(id).then((success) => {
+      if (success) onDeleted();
+    });
+  }
 
   return (
     <Card
@@ -42,22 +56,30 @@ export function Task({
       style={{
         backgroundColor: colors.surface,
         border: `1px solid ${colors.border}`,
-        cursor: "pointer",
       }}
     >
       <Stack gap="xs">
-        <Badge
-          size="xs"
-          radius="sm"
-          style={{
-            backgroundColor: priorityColor + "22",
-            color: priorityColor,
-            border: "none",
-            alignSelf: "flex-start",
-          }}
-        >
-          {priority}
-        </Badge>
+        <Group justify="space-between" align="center">
+          <Badge
+            size="xs"
+            radius="sm"
+            style={{
+              backgroundColor: priorityColor + "22",
+              color: priorityColor,
+              border: "none",
+            }}
+          >
+            {priority}
+          </Badge>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="sm"
+            onClick={handleDelete}
+          >
+            <IconTrash size={14} />
+          </ActionIcon>
+        </Group>
         <Text size="sm" fw={500} c="gray.2" lh={1.4}>
           {title}
         </Text>

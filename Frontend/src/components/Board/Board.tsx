@@ -64,7 +64,17 @@ export function Board() {
               </Group>
               <Stack gap="sm">
                 {colTasks.map((task) => (
-                  <Task key={task.id} {...task} />
+                  <Task
+                    key={task.id}
+                    id={task.id}
+                    title={task.title}
+                    description={task.description}
+                    priority={task.priority}
+                    column={task.column}
+                    created_at={task.created_at}
+                    updated_at={task.updated_at}
+                    onDeleted={fetchTasks}
+                  />
                 ))}
                 {col.id === "todo" && (
                   <UnstyledButton
