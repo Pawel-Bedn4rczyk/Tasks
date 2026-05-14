@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Services\TaskService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TaskController extends Controller
 {
@@ -66,10 +67,10 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    public function destroy(Task $task): JsonResponse
+    public function destroy(Task $task): Response
     {
         $this->taskService->delete($task);
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }
