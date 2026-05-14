@@ -2,13 +2,13 @@ import {
   ActionIcon,
   Badge,
   Button,
-  Card,
   Group,
   Modal,
   Stack,
   Text,
 } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
+import { useDraggable } from "@dnd-kit/core";
+import { IconGripVertical, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { deleteTask } from "../../api";
 import { colors } from "../../colors";
@@ -61,6 +61,9 @@ export function Task({
   const priorityColor = priorityColors[priority];
   const wasEdited = updated_at && updated_at !== created_at;
 
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({ id, data: { column } });
+
   function handleDelete() {
     setDeleting(true);
     deleteTask(id).then((success) => {
@@ -71,19 +74,42 @@ export function Task({
 
   return (
     <>
-      <Card
-        radius="md"
-        p="md"
+      <div
+        ref={setNodeRef}
         onClick={() =>
           onEdit({ id, title, description, priority, column, created_at, updated_at })
         }
         style={{
+          display: "flex",
+          borderRadius: 8,
           backgroundColor: colors.surface,
           border: `1px solid ${colors.border}`,
+          overflow: "hidden",
           cursor: "pointer",
+          opacity: isDragging ? 0.4 : 1,
+          transform: transform
+            ? `translate(${transform.x}px, ${transform.y}px)`
+            : undefined,
         }}
       >
-        <Stack gap="xs">
+        <div
+          {...listeners}
+          {...attributes}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            width: 18,
+            flexShrink: 0,
+            backgroundColor: colors.border,
+            cursor: "grab",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: colors.gray,
+          }}
+        >
+          <IconGripVertical size={12} />
+        </div>
+        <Stack gap="xs" p="md" style={{ flex: 1 }}>
           <Group justify="space-between" align="center">
             <Badge
               size="xs"
@@ -125,7 +151,7 @@ export function Task({
             )}
           </Stack>
         </Stack>
-      </Card>
+      </div>
 
       <Modal
         opened={confirmOpen}

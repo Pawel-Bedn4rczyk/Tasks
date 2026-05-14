@@ -1,7 +1,15 @@
+import {
+  DndContext,
+  PointerSensor,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { Badge, Box, Group, Stack, Text, UnstyledButton } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { getTasks } from "../../api";
+import { getTasks, moveTask } from "../../api";
 import { colors } from "../../colors";
 import { Task, type ITask } from "../Task/Task";
 import { TaskDrawer } from "../TaskDrawer/TaskDrawer";
@@ -18,12 +26,40 @@ const columns: IColumn[] = [
   { id: "done", label: "Done", color: colors.green },
 ];
 
+function DroppableColumn({
+  col,
+  children,
+}: {
+  col: IColumn;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: col.id });
+
+  return (
+    <Stack
+      ref={setNodeRef}
+      gap="sm"
+      style={{
+        minHeight: 100,
+        borderRadius: 8,
+        outline: isOver ? `2px dashed ${col.color}` : "2px solid transparent",
+        transition: "outline 0.15s",
+        padding: 4,
+      }}
+    >
+      {children}
+    </Stack>
+  );
+}
+
 export function Board() {
   const [tasks, setTasks] = useState<ITask[]>([]);
-  const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(
-    null,
-  );
+  const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(null);
   const [editingTask, setEditingTask] = useState<ITask | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
 
   function fetchTasks() {
     getTasks().then(setTasks);
@@ -33,8 +69,22 @@ export function Board() {
     fetchTasks();
   }, []);
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.data.current?.column === over.id) return;
+
+    const taskId = active.id as number;
+    const newColumn = over.id as ITask["column"];
+
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, column: newColumn } : t)),
+    );
+
+    moveTask(taskId, newColumn);
+  }
+
   return (
-    <>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <Group align="flex-start" gap="lg">
         {columns.map((col) => {
           const colTasks = tasks.filter((t) => t.column === col.id);
@@ -63,7 +113,7 @@ export function Board() {
                   {colTasks.length}
                 </Badge>
               </Group>
-              <Stack gap="sm">
+              <DroppableColumn col={col}>
                 {colTasks.map((task) => (
                   <Task
                     key={task.id}
@@ -97,7 +147,7 @@ export function Board() {
                     <Text size="xs">Add task</Text>
                   </UnstyledButton>
                 )}
-              </Stack>
+              </DroppableColumn>
             </Stack>
           );
         })}
@@ -113,6 +163,6 @@ export function Board() {
         }}
         onCreated={fetchTasks}
       />
-    </>
+    </DndContext>
   );
 }

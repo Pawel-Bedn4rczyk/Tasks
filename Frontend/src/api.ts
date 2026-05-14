@@ -29,6 +29,23 @@ export async function updateTask(
   }
 }
 
+export async function moveTask(
+  id: number,
+  column: ITask["column"],
+): Promise<ITask | null> {
+  try {
+    const res = await fetch(`${API_URL}/tasks/${id}/move`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ column }),
+    });
+    return res.json();
+  } catch (error) {
+    console.error("Failed to move task:", error);
+    return null;
+  }
+}
+
 export async function deleteTask(id: number): Promise<boolean> {
   try {
     await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });

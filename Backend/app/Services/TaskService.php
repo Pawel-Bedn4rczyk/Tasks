@@ -16,6 +16,13 @@ class TaskService
         return Task::create($data);
     }
 
+    public function move(Task $task, string $column): Task
+    {
+        $task->update(['column' => $column]);
+
+        return $task;
+    }
+
     public function update(Task $task, array $data): Task
     {
         $task->update($data);

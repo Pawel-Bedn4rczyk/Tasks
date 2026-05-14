@@ -30,6 +30,17 @@ class TaskController extends Controller
         return response()->json($task, 201);
     }
 
+    public function move(Request $request, Task $task): JsonResponse
+    {
+        $validated = $request->validate([
+            'column' => 'required|in:todo,in_progress,done',
+        ]);
+
+        $task = $this->taskService->move($task, $validated['column']);
+
+        return response()->json($task);
+    }
+
     public function update(Request $request, Task $task): JsonResponse
     {
         $validated = $request->validate([
