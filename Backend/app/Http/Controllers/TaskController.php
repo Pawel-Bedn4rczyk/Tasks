@@ -21,14 +21,13 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
-            'description' => ['nullable', 'string', 'not_regex:/^\s*$/'],
+            'description' => ['nullable', 'string'],
             'priority'    => 'required|in:high,medium,low',
             'column'      => 'required|in:todo,in_progress,done',
         ], [
-            'title.required'        => 'Title is required.',
-            'title.max'             => 'Title cannot exceed 30 characters.',
-            'title.not_regex'       => 'Title cannot be blank.',
-            'description.not_regex' => 'Description cannot be blank.',
+            'title.required'  => 'Title is required.',
+            'title.max'       => 'Title cannot exceed 30 characters.',
+            'title.not_regex' => 'Title cannot be blank.',
         ]);
 
         $task = $this->taskService->create($validated);
@@ -51,13 +50,12 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
-            'description' => ['nullable', 'string', 'not_regex:/^\s*$/'],
+            'description' => ['nullable', 'string'],
             'priority'    => 'required|in:high,medium,low',
         ], [
-            'title.required'        => 'Title is required.',
-            'title.max'             => 'Title cannot exceed 30 characters.',
-            'title.not_regex'       => 'Title cannot be blank.',
-            'description.not_regex' => 'Description cannot be blank.',
+            'title.required'  => 'Title is required.',
+            'title.max'       => 'Title cannot exceed 30 characters.',
+            'title.not_regex' => 'Title cannot be blank.',
         ]);
 
         $task = $this->taskService->update($task, $validated);

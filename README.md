@@ -15,3 +15,11 @@ cd Frontend
 npm install
 npm run dev
 ```
+
+## Running tests
+
+```bash
+cd Backend
+composer install
+php artisan test
+```
