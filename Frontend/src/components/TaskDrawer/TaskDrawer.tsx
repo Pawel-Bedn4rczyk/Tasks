@@ -75,7 +75,7 @@ export function TaskDrawer({
     if (task) {
       form.setValues({
         title: task.title,
-        description: task.description,
+        description: task.description ?? "",
         priority: task.priority,
       });
     }
@@ -152,7 +152,7 @@ export function TaskDrawer({
                 {...form.getInputProps("description")}
               />
               <Text size="xs" c="dimmed">
-                {form.values.description.length} characters
+                {(form.values.description ?? "").length} characters
               </Text>
             </Stack>
             <Select
