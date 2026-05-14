@@ -1,6 +1,9 @@
 import {
+  ActionIcon,
   Button,
   Drawer,
+  Group,
+  Modal,
   Select,
   Stack,
   Text,
@@ -8,8 +11,9 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { createTask, updateTask } from "../../api";
+import { createTask, deleteTask, updateTask } from "../../api";
 import { type ITask } from "../Task/Task";
 
 interface ITaskDrawerProps {
@@ -34,6 +38,8 @@ export function TaskDrawer({
   onCreated,
 }: ITaskDrawerProps) {
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const isEditing = !!task;
 
   const form = useForm<ITaskFormValues>({
@@ -70,42 +76,90 @@ export function TaskDrawer({
     }
   }
 
+  function handleDelete() {
+    setDeleting(true);
+    deleteTask(task!.id).then((success) => {
+      setDeleting(false);
+      if (success) {
+        form.reset();
+        setConfirmOpen(false);
+        onCreated();
+        onClose();
+      }
+    });
+  }
+
   function handleClose() {
     form.reset();
     onClose();
   }
 
   return (
-    <Drawer
-      opened={opened}
-      onClose={handleClose}
-      title={<Text fw={600}>{isEditing ? "Edit task" : "New task"}</Text>}
-      position="right"
-      size="md"
-    >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap="md">
-          <TextInput
-            label="Title"
-            placeholder="Task title"
-            {...form.getInputProps("title")}
-          />
-          <Textarea
-            label="Description"
-            placeholder="Task description"
-            rows={4}
-            {...form.getInputProps("description")}
-          />
-          <Select
-            label="Priority"
-            data={["High", "Medium", "Low"]}
-            {...form.getInputProps("priority")}
-          />
-          <Button type="submit" mt="sm" fullWidth loading={loading}>
-            {isEditing ? "Save changes" : "Create task"}
+    <>
+      <Drawer
+        opened={opened}
+        onClose={handleClose}
+        title={
+          <Group justify="space-between" align="center" w="100%">
+            <Text fw={600}>{isEditing ? "Edit task" : "New task"}</Text>
+            {isEditing && (
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={() => setConfirmOpen(true)}
+              >
+                <IconTrash size={16} />
+              </ActionIcon>
+            )}
+          </Group>
+        }
+        position="right"
+        size="md"
+      >
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack gap="md">
+            <TextInput
+              label="Title"
+              placeholder="Task title"
+              {...form.getInputProps("title")}
+            />
+            <Textarea
+              label="Description"
+              placeholder="Task description"
+              rows={4}
+              {...form.getInputProps("description")}
+            />
+            <Select
+              label="Priority"
+              data={["High", "Medium", "Low"]}
+              {...form.getInputProps("priority")}
+            />
+            <Button type="submit" mt="sm" fullWidth loading={loading}>
+              {isEditing ? "Save changes" : "Create task"}
+            </Button>
+          </Stack>
+        </form>
+      </Drawer>
+
+      <Modal
+        opened={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Delete task"
+        size="sm"
+        centered
+      >
+        <Text size="sm" mb="lg">
+          Are you sure you want to delete this task?
+        </Text>
+        <Group justify="flex-end">
+          <Button color="red" loading={deleting} onClick={handleDelete}>
+            Yes
           </Button>
-        </Stack>
-      </form>
-    </Drawer>
+          <Button variant="default" onClick={() => setConfirmOpen(false)}>
+            No
+          </Button>
+        </Group>
+      </Modal>
+    </>
   );
 }
