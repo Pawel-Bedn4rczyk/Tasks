@@ -54,6 +54,21 @@ export function TaskDrawer({
       description: "",
       priority: "medium" as ITask["priority"],
     },
+    validate: {
+      title: (value) => {
+        if (!value.trim()) return "Title is required.";
+        return null;
+      },
+      description: (value) => {
+        if (value.length > 0 && !value.trim()) return "Description cannot be blank.";
+        return null;
+      },
+    },
+    transformValues: (values) => ({
+      ...values,
+      title: values.title.trim(),
+      description: values.description.trim(),
+    }),
   });
 
   useEffect(() => {
@@ -66,7 +81,7 @@ export function TaskDrawer({
     }
   }, [task]);
 
-  async function handleSubmit(values: ITaskFormValues) {
+  async function handleSubmit(values: ReturnType<typeof form.getTransformedValues>) {
     setLoading(true);
 
     const result = isEditing

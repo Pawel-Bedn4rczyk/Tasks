@@ -19,10 +19,16 @@ class TaskController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
+            'description' => ['nullable', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'priority'    => 'required|in:high,medium,low',
             'column'      => 'required|in:todo,in_progress,done',
+        ], [
+            'title.required'        => 'Title is required.',
+            'title.max'             => 'Title cannot exceed 30 characters.',
+            'title.not_regex'       => 'Title cannot be blank.',
+            'description.max'       => 'Description cannot exceed 255 characters.',
+            'description.not_regex' => 'Description cannot be blank.',
         ]);
 
         $task = $this->taskService->create($validated);
@@ -44,9 +50,15 @@ class TaskController extends Controller
     public function update(Request $request, Task $task): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
+            'description' => ['nullable', 'string', 'max:255', 'not_regex:/^\s*$/'],
             'priority'    => 'required|in:high,medium,low',
+        ], [
+            'title.required'        => 'Title is required.',
+            'title.max'             => 'Title cannot exceed 30 characters.',
+            'title.not_regex'       => 'Title cannot be blank.',
+            'description.max'       => 'Description cannot exceed 255 characters.',
+            'description.not_regex' => 'Description cannot be blank.',
         ]);
 
         $task = $this->taskService->update($task, $validated);
