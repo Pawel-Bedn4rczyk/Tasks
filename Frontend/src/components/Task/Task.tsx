@@ -67,10 +67,8 @@ export function Task({
   const priorityColor = priorityColors[priority];
   const wasEdited = updated_at && updated_at !== created_at;
 
-  const isDone = column === "done";
-
   const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({ id, data: { column }, disabled: isDone });
+    useDraggable({ id, data: { column } });
 
   function handleDelete() {
     setDeleting(true);
@@ -85,7 +83,15 @@ export function Task({
       <div
         ref={setNodeRef}
         onClick={() =>
-          onEdit({ id, title, description, priority, column, created_at, updated_at })
+          onEdit({
+            id,
+            title,
+            description,
+            priority,
+            column,
+            created_at,
+            updated_at,
+          })
         }
         style={{
           display: "flex",
@@ -101,14 +107,14 @@ export function Task({
         }}
       >
         <div
-          {...(!isDone ? listeners : {})}
-          {...(!isDone ? attributes : {})}
+          {...listeners}
+          {...attributes}
           onClick={(e) => e.stopPropagation()}
           style={{
             width: 18,
             flexShrink: 0,
             backgroundColor: colors.border,
-            cursor: isDone ? "not-allowed" : "grab",
+            cursor: "grab",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

@@ -54,7 +54,9 @@ function DroppableColumn({
 
 export function Board() {
   const [tasks, setTasks] = useState<ITask[]>([]);
-  const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(null);
+  const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(
+    null,
+  );
   const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
   const sensors = useSensors(
@@ -69,18 +71,25 @@ export function Board() {
     fetchTasks();
   }, []);
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.data.current?.column === over.id) return;
 
     const taskId = active.id as number;
+    const prevColumn = active.data.current?.column as ITask["column"];
     const newColumn = over.id as ITask["column"];
 
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, column: newColumn } : t)),
     );
 
-    moveTask(taskId, newColumn);
+    const result = await moveTask(taskId, newColumn);
+
+    if (!result) {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, column: prevColumn } : t)),
+      );
+    }
   }
 
   return (

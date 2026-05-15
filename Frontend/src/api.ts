@@ -1,3 +1,4 @@
+import { notifications } from "@mantine/notifications";
 import { type ITask } from "./components/Task/Task";
 
 const API_URL = "http://localhost:8000/api";
@@ -7,12 +8,40 @@ const headers = {
   "Accept": "application/json",
 };
 
+function showError(message: string) {
+  notifications.show({
+    color: "red",
+    title: "Error",
+    message,
+    autoClose: 10000,
+  });
+}
+
+async function getErrorMessage(res: Response): Promise<string> {
+  try {
+    const body = await res.json();
+
+    if (body?.message) return body.message;
+
+    if (body?.errors) return Object.values(body.errors).flat().join(" ");
+  } catch { }
+
+  return `Request failed (${res.status})`;
+}
+
 export async function getTasks(): Promise<ITask[]> {
   try {
     const res = await fetch(`${API_URL}/tasks`, { headers });
+
+    if (!res.ok) {
+      showError(await getErrorMessage(res));
+      return [];
+    }
+
     return res.json();
-  } catch (error) {
-    console.error("Failed to fetch tasks:", error);
+  } catch {
+    showError("Cannot connect to the server.");
+
     return [];
   }
 }
@@ -26,9 +55,17 @@ export async function createTask(
       headers,
       body: JSON.stringify(data),
     });
+
+    if (!res.ok) {
+      showError(await getErrorMessage(res));
+
+      return null;
+    }
+
     return res.json();
-  } catch (error) {
-    console.error("Failed to create task:", error);
+  } catch {
+    showError("Cannot connect to the server.");
+
     return null;
   }
 }
@@ -43,9 +80,16 @@ export async function updateTask(
       headers,
       body: JSON.stringify(data),
     });
+
+    if (!res.ok) {
+      showError(await getErrorMessage(res));
+
+      return null;
+    }
     return res.json();
-  } catch (error) {
-    console.error("Failed to update task:", error);
+  } catch {
+    showError("Cannot connect to the server.");
+
     return null;
   }
 }
@@ -60,19 +104,35 @@ export async function moveTask(
       headers,
       body: JSON.stringify({ column }),
     });
+
+    if (!res.ok) {
+      showError(await getErrorMessage(res));
+
+      return null;
+    }
+
     return res.json();
-  } catch (error) {
-    console.error("Failed to move task:", error);
+  } catch {
+    showError("Cannot connect to the server.");
+
     return null;
   }
 }
 
 export async function deleteTask(id: number): Promise<boolean> {
   try {
-    await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE", headers });
+    const res = await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE", headers });
+
+    if (!res.ok) {
+      showError(await getErrorMessage(res));
+
+      return false;
+    }
+
     return true;
-  } catch (error) {
-    console.error("Failed to delete task:", error);
+  } catch {
+    showError("Cannot connect to the server.");
+    
     return false;
   }
 }
