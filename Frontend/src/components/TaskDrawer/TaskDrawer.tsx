@@ -135,7 +135,7 @@ export function TaskDrawer({
           </Group>
         }
         position="right"
-        size="md"
+        size="lg"
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
@@ -148,7 +148,9 @@ export function TaskDrawer({
               <Textarea
                 label="Description"
                 placeholder="Task description"
-                rows={4}
+                rows={5}
+                maxLength={2000}
+                resize="vertical"
                 {...form.getInputProps("description")}
               />
               <Text size="xs" c="dimmed">

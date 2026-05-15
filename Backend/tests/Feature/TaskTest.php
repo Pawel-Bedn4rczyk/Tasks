@@ -51,6 +51,16 @@ it('rejects a title longer than 30 characters', function () {
         ->assertJsonValidationErrors('title');
 });
 
+it('rejects a description longer than 2000 characters', function () {
+    $this->postJson('/api/tasks', [
+        'title'       => 'New task',
+        'description' => str_repeat('a', 2001),
+        'priority'    => 'medium',
+        'column'      => 'todo',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('description');
+});
+
 it('stores a blank description as null', function () {
     $this->postJson('/api/tasks', [
         'title'       => 'New task',

@@ -21,7 +21,7 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:2000'],
             'priority'    => 'required|in:high,medium,low',
             'column'      => 'required|in:todo,in_progress,done',
         ], [
@@ -50,7 +50,7 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:2000'],
             'priority'    => 'required|in:high,medium,low',
         ], [
             'title.required'  => 'Title is required',

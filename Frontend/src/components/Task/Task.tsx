@@ -152,9 +152,13 @@ export function Task({
           <Text size="sm" fw={500} c="gray.2" lh={1.4}>
             {title}
           </Text>
-          <Text size="xs" c="dimmed" lh={1.4}>
-            {description}
-          </Text>
+          {description && (
+            <Text size="xs" c="dimmed" lh={1.4} style={{ wordBreak: "break-word" }}>
+              {description.length > 200
+                ? description.slice(0, 200) + "…"
+                : description}
+            </Text>
+          )}
           <Stack gap={2}>
             <Text size="xs" c="dimmed">
               Created: {formatDate(created_at)}
