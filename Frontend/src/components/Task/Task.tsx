@@ -119,6 +119,7 @@ export function Task({
             alignItems: "center",
             justifyContent: "center",
             color: colors.gray,
+            touchAction: "none",
           }}
         >
           <IconGripVertical size={12} />

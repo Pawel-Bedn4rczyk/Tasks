@@ -1,6 +1,7 @@
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   useDroppable,
   useSensor,
   useSensors,
@@ -64,6 +65,7 @@ export function Board() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
   );
 
   function fetchTasks() {
@@ -97,7 +99,11 @@ export function Board() {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <Group align="flex-start" gap="lg" style={{ flexDirection: isMobile ? "column" : "row" }}>
+      <Group
+        align="flex-start"
+        gap="lg"
+        style={{ flexDirection: isMobile ? "column" : "row" }}
+      >
         {columns.map((col) => {
           const colTasks = tasks.filter((t) => t.column === col.id);
 
