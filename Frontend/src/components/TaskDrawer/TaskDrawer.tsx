@@ -15,6 +15,13 @@ import { IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { createTask, deleteTask, updateTask } from "../../api";
 import { type ITask } from "../Task/Task";
+import { colors } from "../../colors";
+
+const priorityColors: Record<ITask["priority"], string> = {
+  low: colors.green,
+  medium: colors.yellow,
+  high: colors.red,
+};
 
 interface ITaskDrawerProps {
   opened: boolean;
@@ -30,7 +37,7 @@ interface ITaskFormValues {
   priority: ITask["priority"];
 }
 
-const priorityOptions = [
+const priorityOptions: { value: ITask["priority"]; label: string }[] = [
   { value: "low", label: "Low" },
   { value: "medium", label: "Medium" },
   { value: "high", label: "High" },
@@ -161,6 +168,26 @@ export function TaskDrawer({
             <Select
               label="Priority"
               data={priorityOptions}
+              leftSection={
+                <div style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: priorityColors[form.values.priority],
+                }} />
+              }
+              renderOption={({ option }) => (
+                <Group gap="xs">
+                  <div style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    backgroundColor: priorityColors[option.value as ITask["priority"]],
+                    flexShrink: 0,
+                  }} />
+                  {option.label}
+                </Group>
+              )}
               {...form.getInputProps("priority")}
             />
             <Button type="submit" mt="sm" fullWidth loading={loading}>
