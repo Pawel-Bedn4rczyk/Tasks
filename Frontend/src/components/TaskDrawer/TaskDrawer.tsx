@@ -11,7 +11,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconTrash } from "@tabler/icons-react";
+import { IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { createTask, deleteTask, updateTask } from "../../api";
 import { type ITask } from "../Task/Task";
@@ -143,6 +143,10 @@ export function TaskDrawer({
         }
         position="right"
         size="lg"
+        styles={{
+          content: { backgroundColor: colors.surface, borderLeft: `1px solid ${colors.border}` },
+          header: { backgroundColor: colors.surface },
+        }}
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
@@ -190,7 +194,7 @@ export function TaskDrawer({
               )}
               {...form.getInputProps("priority")}
             />
-            <Button type="submit" mt="sm" fullWidth loading={loading}>
+            <Button type="submit" mt="sm" fullWidth loading={loading} variant="default" leftSection={<IconDeviceFloppy size={16} />}>
               {isEditing ? "Save changes" : "Create task"}
             </Button>
           </Stack>

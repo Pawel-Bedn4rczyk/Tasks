@@ -7,7 +7,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Badge, Box, Group, Stack, Text, UnstyledButton } from "@mantine/core";
+import { Badge, Box, Button, Group, Stack, Text, Title, UnstyledButton } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState } from "react";
@@ -98,6 +98,13 @@ export function Board() {
   }
 
   return (
+    <>
+      <Group justify="space-between" align="center" mb="xl">
+        <Title order={2} c="gray.1">Tasks</Title>
+        <Button leftSection={<IconPlus size={14} />} variant="default" onClick={() => setDrawerColumn("todo")}>
+          Add task
+        </Button>
+      </Group>
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <Group
         align="flex-start"
@@ -131,22 +138,7 @@ export function Board() {
                   {colTasks.length}
                 </Badge>
               </Group>
-              <DroppableColumn col={col}>
-                {colTasks.map((task) => (
-                  <Task
-                    key={task.id}
-                    id={task.id}
-                    title={task.title}
-                    description={task.description}
-                    priority={task.priority}
-                    column={task.column}
-                    created_at={task.created_at}
-                    updated_at={task.updated_at}
-                    onDeleted={fetchTasks}
-                    onEdit={setEditingTask}
-                  />
-                ))}
-                {col.id === "todo" && (
+              {col.id === "todo" && (
                   <UnstyledButton
                     onClick={() => setDrawerColumn("todo")}
                     style={{
@@ -165,6 +157,21 @@ export function Board() {
                     <Text size="xs">Add task</Text>
                   </UnstyledButton>
                 )}
+              <DroppableColumn col={col}>
+                {colTasks.map((task) => (
+                  <Task
+                    key={task.id}
+                    id={task.id}
+                    title={task.title}
+                    description={task.description}
+                    priority={task.priority}
+                    column={task.column}
+                    created_at={task.created_at}
+                    updated_at={task.updated_at}
+                    onDeleted={fetchTasks}
+                    onEdit={setEditingTask}
+                  />
+                ))}
               </DroppableColumn>
             </Stack>
           );
@@ -182,5 +189,6 @@ export function Board() {
         onCreated={fetchTasks}
       />
     </DndContext>
+    </>
   );
 }
