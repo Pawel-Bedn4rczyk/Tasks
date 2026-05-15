@@ -27,7 +27,7 @@ class TaskService
 
         if (!in_array($column, $allowed[$task->column])) {
             throw ValidationException::withMessages([
-                'column' => "Cannot move task from '{$task->column}' to '{$column}'.",
+                'column' => "Cannot move done task",
             ]);
         }
 
