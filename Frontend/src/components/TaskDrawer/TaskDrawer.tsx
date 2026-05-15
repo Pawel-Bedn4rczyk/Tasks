@@ -31,9 +31,9 @@ interface ITaskFormValues {
 }
 
 const priorityOptions = [
-  { value: "high", label: "High" },
-  { value: "medium", label: "Medium" },
   { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
 ];
 
 export function TaskDrawer({
