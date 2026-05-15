@@ -8,6 +8,7 @@ import {
 } from "@dnd-kit/core";
 import { Badge, Box, Group, Stack, Text, UnstyledButton } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
+import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { getTasks, moveTask } from "../../api";
 import { colors } from "../../colors";
@@ -59,6 +60,8 @@ export function Board() {
   );
   const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
@@ -94,12 +97,12 @@ export function Board() {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <Group align="flex-start" gap="lg">
+      <Group align="flex-start" gap="lg" style={{ flexDirection: isMobile ? "column" : "row" }}>
         {columns.map((col) => {
           const colTasks = tasks.filter((t) => t.column === col.id);
 
           return (
-            <Stack key={col.id} style={{ flex: 1, minWidth: 280 }} gap="sm">
+            <Stack key={col.id} style={{ flex: 1 }} gap="sm">
               <Group gap="xs">
                 <Box
                   style={{
