@@ -111,7 +111,7 @@ export function Task({
           {...attributes}
           onClick={(e) => e.stopPropagation()}
           style={{
-            width: 18,
+            width: 28,
             flexShrink: 0,
             backgroundColor: colors.border,
             cursor: "grab",
