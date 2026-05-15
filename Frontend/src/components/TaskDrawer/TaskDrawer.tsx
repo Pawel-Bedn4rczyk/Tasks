@@ -94,6 +94,7 @@ export function TaskDrawer({
 
   function handleDelete() {
     setConfirmOpen(false);
+    form.reset();
     onClose();
     onDelete?.(task!.id);
   }
