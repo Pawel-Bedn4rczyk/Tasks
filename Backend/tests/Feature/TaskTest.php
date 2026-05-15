@@ -72,6 +72,15 @@ it('stores a blank description as null', function () {
     $this->assertDatabaseHas('tasks', ['title' => 'New task', 'description' => null]);
 });
 
+it('rejects a blank title', function () {
+    $this->postJson('/api/tasks', [
+        'title'    => '   ',
+        'priority' => 'medium',
+        'column'   => 'todo',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('title');
+});
+
 it('rejects an invalid priority', function () {
     $this->postJson('/api/tasks', [
         'title'    => 'New task',
@@ -79,6 +88,23 @@ it('rejects an invalid priority', function () {
         'column'   => 'todo',
     ])->assertUnprocessable()
         ->assertJsonValidationErrors('priority');
+});
+
+it('requires a column', function () {
+    $this->postJson('/api/tasks', [
+        'title'    => 'New task',
+        'priority' => 'medium',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('column');
+});
+
+it('rejects an invalid column', function () {
+    $this->postJson('/api/tasks', [
+        'title'    => 'New task',
+        'priority' => 'medium',
+        'column'   => 'backlog',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('column');
 });
 
 // update
@@ -99,6 +125,47 @@ it('returns 404 when updating a non-existent task', function () {
         'title'    => 'New title',
         'priority' => 'high',
     ])->assertNotFound();
+});
+
+it('rejects a blank title on update', function () {
+    $task = createTask();
+
+    $this->putJson("/api/tasks/{$task->id}", [
+        'title'    => '   ',
+        'priority' => 'medium',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('title');
+});
+
+it('rejects a title longer than 50 characters on update', function () {
+    $task = createTask();
+
+    $this->putJson("/api/tasks/{$task->id}", [
+        'title'    => str_repeat('a', 51),
+        'priority' => 'medium',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('title');
+});
+
+it('rejects an invalid priority on update', function () {
+    $task = createTask();
+
+    $this->putJson("/api/tasks/{$task->id}", [
+        'title'    => 'New title',
+        'priority' => 'urgent',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('priority');
+});
+
+it('rejects a description longer than 2000 characters on update', function () {
+    $task = createTask();
+
+    $this->putJson("/api/tasks/{$task->id}", [
+        'title'       => 'New title',
+        'description' => str_repeat('a', 2001),
+        'priority'    => 'medium',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('description');
 });
 
 // move
@@ -124,6 +191,23 @@ it('returns 404 when moving a non-existent task', function () {
     $this->patchJson('/api/tasks/999/move', [
         'column' => 'in_progress',
     ])->assertNotFound();
+});
+
+it('requires a column when moving', function () {
+    $task = createTask(['column' => 'todo']);
+
+    $this->patchJson("/api/tasks/{$task->id}/move", [])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('column');
+});
+
+it('rejects an invalid column when moving', function () {
+    $task = createTask(['column' => 'todo']);
+
+    $this->patchJson("/api/tasks/{$task->id}/move", [
+        'column' => 'backlog',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('column');
 });
 
 // destroy
