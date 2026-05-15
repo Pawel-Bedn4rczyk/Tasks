@@ -7,7 +7,17 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Badge, Box, Button, Group, Stack, Text, Title, UnstyledButton } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Group,
+  Skeleton,
+  Stack,
+  Text,
+  Title,
+  UnstyledButton,
+} from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState } from "react";
@@ -56,6 +66,9 @@ function DroppableColumn({
 
 export function Board() {
   const [tasks, setTasks] = useState<ITask[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
   const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(
     null,
   );
@@ -69,11 +82,18 @@ export function Board() {
   );
 
   function fetchTasks() {
-    getTasks().then(setTasks);
+    getTasks().then((data) => {
+      setTasks(data);
+      setCreating(false);
+      setUpdatingTaskId(null);
+    });
   }
 
   useEffect(() => {
-    fetchTasks();
+    getTasks().then((data) => {
+      setTasks(data);
+      setLoading(false);
+    });
   }, []);
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -100,45 +120,51 @@ export function Board() {
   return (
     <>
       <Group justify="space-between" align="center" mb="xl">
-        <Title order={2} c="gray.1">Tasks</Title>
-        <Button leftSection={<IconPlus size={14} />} variant="default" onClick={() => setDrawerColumn("todo")}>
+        <Title order={2} c="gray.1">
+          Tasks
+        </Title>
+        <Button
+          leftSection={<IconPlus size={14} />}
+          variant="default"
+          onClick={() => setDrawerColumn("todo")}
+        >
           Add task
         </Button>
       </Group>
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <Group
-        align="flex-start"
-        gap="lg"
-        style={{ flexDirection: isMobile ? "column" : "row" }}
-      >
-        {columns.map((col) => {
-          const colTasks = tasks.filter((t) => t.column === col.id);
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <Group
+          align="flex-start"
+          gap="lg"
+          style={{ flexDirection: isMobile ? "column" : "row" }}
+        >
+          {columns.map((col) => {
+            const colTasks = tasks.filter((t) => t.column === col.id);
 
-          return (
-            <Stack key={col.id} style={{ flex: 1 }} gap="sm">
-              <Group gap="xs">
-                <Box
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                    backgroundColor: col.color,
-                  }}
-                />
-                <Text
-                  fw={600}
-                  size="sm"
-                  c="gray.3"
-                  tt="uppercase"
-                  style={{ letterSpacing: "0.05em" }}
-                >
-                  {col.label}
-                </Text>
-                <Badge size="sm" circle variant="light" color="gray">
-                  {colTasks.length}
-                </Badge>
-              </Group>
-              {col.id === "todo" && (
+            return (
+              <Stack key={col.id} style={{ flex: 1 }} gap="sm">
+                <Group gap="xs">
+                  <Box
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      backgroundColor: col.color,
+                    }}
+                  />
+                  <Text
+                    fw={600}
+                    size="sm"
+                    c="gray.3"
+                    tt="uppercase"
+                    style={{ letterSpacing: "0.05em" }}
+                  >
+                    {col.label}
+                  </Text>
+                  <Badge size="sm" circle variant="light" color="gray">
+                    {colTasks.length}
+                  </Badge>
+                </Group>
+                {col.id === "todo" && (
                   <UnstyledButton
                     onClick={() => setDrawerColumn("todo")}
                     style={{
@@ -157,38 +183,47 @@ export function Board() {
                     <Text size="xs">Add task</Text>
                   </UnstyledButton>
                 )}
-              <DroppableColumn col={col}>
-                {colTasks.map((task) => (
-                  <Task
-                    key={task.id}
-                    id={task.id}
-                    title={task.title}
-                    description={task.description}
-                    priority={task.priority}
-                    column={task.column}
-                    created_at={task.created_at}
-                    updated_at={task.updated_at}
-                    onDeleted={fetchTasks}
-                    onEdit={setEditingTask}
-                  />
-                ))}
-              </DroppableColumn>
-            </Stack>
-          );
-        })}
-      </Group>
+                <DroppableColumn col={col}>
+                  {(loading || (creating && col.id === "todo")) && (
+                    <Skeleton height={150} radius="sm" />
+                  )}
+                  {colTasks.map((task) =>
+                    updatingTaskId === task.id ? (
+                      <Skeleton key={task.id} height={150} radius="sm" />
+                    ) : (
+                      <Task
+                        key={task.id}
+                        id={task.id}
+                        title={task.title}
+                        description={task.description}
+                        priority={task.priority}
+                        column={task.column}
+                        created_at={task.created_at}
+                        updated_at={task.updated_at}
+                        onDeleted={fetchTasks}
+                        onEdit={setEditingTask}
+                      />
+                    ),
+                  )}
+                </DroppableColumn>
+              </Stack>
+            );
+          })}
+        </Group>
 
-      <TaskDrawer
-        opened={drawerColumn !== null || editingTask !== null}
-        column={drawerColumn ?? "todo"}
-        task={editingTask ?? undefined}
-        onClose={() => {
-          setDrawerColumn(null);
-          setEditingTask(null);
-        }}
-        onCreated={fetchTasks}
-      />
-    </DndContext>
+        <TaskDrawer
+          opened={drawerColumn !== null || editingTask !== null}
+          column={drawerColumn ?? "todo"}
+          task={editingTask ?? undefined}
+          onClose={() => {
+            setDrawerColumn(null);
+            setEditingTask(null);
+          }}
+          onCreated={fetchTasks}
+          onCreateStart={() => setCreating(true)}
+          onEditStart={(id) => setUpdatingTaskId(id)}
+        />
+      </DndContext>
     </>
   );
 }

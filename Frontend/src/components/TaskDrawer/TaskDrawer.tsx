@@ -29,6 +29,8 @@ interface ITaskDrawerProps {
   task?: ITask;
   onClose: () => void;
   onCreated: () => void;
+  onCreateStart?: () => void;
+  onEditStart?: (id: number) => void;
 }
 
 interface ITaskFormValues {
@@ -49,6 +51,8 @@ export function TaskDrawer({
   task,
   onClose,
   onCreated,
+  onCreateStart,
+  onEditStart,
 }: ITaskDrawerProps) {
   const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -67,7 +71,8 @@ export function TaskDrawer({
         return null;
       },
       description: (value) => {
-        if (value.length > 0 && !value.trim()) return "Description cannot be blank.";
+        if (value.length > 0 && !value.trim())
+          return "Description cannot be blank.";
         return null;
       },
     },
@@ -88,8 +93,16 @@ export function TaskDrawer({
     }
   }, [task]);
 
-  async function handleSubmit(values: ReturnType<typeof form.getTransformedValues>) {
+  async function handleSubmit(
+    values: ReturnType<typeof form.getTransformedValues>,
+  ) {
     setLoading(true);
+
+    if (isEditing) {
+      onEditStart?.(task.id);
+    } else {
+      onCreateStart?.();
+    }
 
     const result = isEditing
       ? await updateTask(task.id, values)
@@ -144,7 +157,10 @@ export function TaskDrawer({
         position="right"
         size="lg"
         styles={{
-          content: { backgroundColor: colors.surface, borderLeft: `1px solid ${colors.border}` },
+          content: {
+            backgroundColor: colors.surface,
+            borderLeft: `1px solid ${colors.border}`,
+          },
           header: { backgroundColor: colors.surface },
         }}
       >
@@ -173,28 +189,40 @@ export function TaskDrawer({
               label="Priority"
               data={priorityOptions}
               leftSection={
-                <div style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  backgroundColor: priorityColors[form.values.priority],
-                }} />
-              }
-              renderOption={({ option }) => (
-                <Group gap="xs">
-                  <div style={{
+                <div
+                  style={{
                     width: 10,
                     height: 10,
                     borderRadius: "50%",
-                    backgroundColor: priorityColors[option.value as ITask["priority"]],
-                    flexShrink: 0,
-                  }} />
+                    backgroundColor: priorityColors[form.values.priority],
+                  }}
+                />
+              }
+              renderOption={({ option }) => (
+                <Group gap="xs">
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      backgroundColor:
+                        priorityColors[option.value as ITask["priority"]],
+                      flexShrink: 0,
+                    }}
+                  />
                   {option.label}
                 </Group>
               )}
               {...form.getInputProps("priority")}
             />
-            <Button type="submit" mt="sm" fullWidth loading={loading} variant="default" leftSection={<IconDeviceFloppy size={16} />}>
+            <Button
+              type="submit"
+              mt="sm"
+              fullWidth
+              loading={loading}
+              variant="default"
+              leftSection={<IconDeviceFloppy size={16} />}
+            >
               {isEditing ? "Save changes" : "Create task"}
             </Button>
           </Stack>

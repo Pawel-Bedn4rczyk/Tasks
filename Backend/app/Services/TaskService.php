@@ -9,7 +9,7 @@ class TaskService
 {
     public function getAll(): \Illuminate\Database\Eloquent\Collection
     {
-        return Task::orderBy('created_at', 'asc')->get();
+        return Task::orderBy('created_at', 'desc')->get();
     }
 
     public function create(array $data): Task
