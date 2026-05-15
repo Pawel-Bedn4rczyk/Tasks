@@ -10,7 +10,6 @@ import {
 import { useDraggable } from "@dnd-kit/core";
 import { IconGripVertical, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
-import { deleteTask } from "../../api";
 import { colors } from "../../colors";
 
 export interface ITask {
@@ -24,7 +23,7 @@ export interface ITask {
 }
 
 interface ITaskProps extends ITask {
-  onDeleted: () => void;
+  onDelete: (id: number) => void;
   onEdit: (task: ITask) => void;
 }
 
@@ -59,11 +58,10 @@ export function Task({
   column,
   created_at,
   updated_at,
-  onDeleted,
+  onDelete,
   onEdit,
 }: ITaskProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const priorityColor = priorityColors[priority];
   const wasEdited = updated_at && updated_at !== created_at;
 
@@ -71,11 +69,8 @@ export function Task({
     useDraggable({ id, data: { column } });
 
   function handleDelete() {
-    setDeleting(true);
-    deleteTask(id).then((success) => {
-      setDeleting(false);
-      if (success) onDeleted();
-    });
+    setConfirmOpen(false);
+    onDelete(id);
   }
 
   return (
@@ -153,7 +148,12 @@ export function Task({
             {title}
           </Text>
           {description && (
-            <Text size="xs" c="dimmed" lh={1.4} style={{ wordBreak: "break-word" }}>
+            <Text
+              size="xs"
+              c="dimmed"
+              lh={1.4}
+              style={{ wordBreak: "break-word" }}
+            >
               {description.length > 200
                 ? description.slice(0, 200) + "…"
                 : description}
@@ -183,7 +183,7 @@ export function Task({
           Are you sure you want to delete this task?
         </Text>
         <Group justify="flex-end">
-          <Button color="red" loading={deleting} onClick={handleDelete}>
+          <Button color="red" onClick={handleDelete}>
             Yes
           </Button>
           <Button variant="default" onClick={() => setConfirmOpen(false)}>

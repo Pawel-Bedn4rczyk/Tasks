@@ -21,10 +21,16 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState } from "react";
-import { getTasks, moveTask } from "../../api";
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  moveTask,
+  updateTask,
+} from "../../api";
 import { colors } from "../../colors";
 import { Task, type ITask } from "../Task/Task";
-import { TaskDrawer } from "../TaskDrawer/TaskDrawer";
+import { TaskDrawer, type ITaskFormValues } from "../TaskDrawer/TaskDrawer";
 
 interface IColumn {
   id: ITask["column"];
@@ -66,9 +72,8 @@ function DroppableColumn({
 
 export function Board() {
   const [tasks, setTasks] = useState<ITask[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
+  const [loadingPage, setLoadingPage] = useState(true);
+  const [loadingItem, setLoadingItem] = useState<number | "new" | null>(null);
   const [drawerColumn, setDrawerColumn] = useState<ITask["column"] | null>(
     null,
   );
@@ -84,17 +89,46 @@ export function Board() {
   function fetchTasks() {
     getTasks().then((data) => {
       setTasks(data);
-      setCreating(false);
-      setUpdatingTaskId(null);
+      setLoadingItem(null);
     });
   }
 
   useEffect(() => {
     getTasks().then((data) => {
       setTasks(data);
-      setLoading(false);
+      setLoadingPage(false);
     });
   }, []);
+
+  function handleSave(values: ITaskFormValues) {
+    if (editingTask) {
+      const id = editingTask.id;
+      setLoadingItem(id);
+      updateTask(id, values).then((success) => {
+        if (success) {
+          fetchTasks();
+        }
+      });
+    } else {
+      setLoadingItem("new");
+      createTask({ ...values, column: drawerColumn ?? "todo" }).then(
+        (success) => {
+          if (success) {
+            fetchTasks();
+          }
+        },
+      );
+    }
+  }
+
+  function handleDelete(id: number) {
+    setLoadingItem(id);
+    deleteTask(id).then((success) => {
+      if (success) {
+        fetchTasks();
+      }
+    });
+  }
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -184,11 +218,12 @@ export function Board() {
                   </UnstyledButton>
                 )}
                 <DroppableColumn col={col}>
-                  {(loading || (creating && col.id === "todo")) && (
+                  {(loadingPage ||
+                    (loadingItem === "new" && col.id === "todo")) && (
                     <Skeleton height={150} radius="sm" />
                   )}
                   {colTasks.map((task) =>
-                    updatingTaskId === task.id ? (
+                    loadingItem === task.id ? (
                       <Skeleton key={task.id} height={150} radius="sm" />
                     ) : (
                       <Task
@@ -200,7 +235,7 @@ export function Board() {
                         column={task.column}
                         created_at={task.created_at}
                         updated_at={task.updated_at}
-                        onDeleted={fetchTasks}
+                        onDelete={handleDelete}
                         onEdit={setEditingTask}
                       />
                     ),
@@ -213,15 +248,13 @@ export function Board() {
 
         <TaskDrawer
           opened={drawerColumn !== null || editingTask !== null}
-          column={drawerColumn ?? "todo"}
           task={editingTask ?? undefined}
           onClose={() => {
             setDrawerColumn(null);
             setEditingTask(null);
           }}
-          onCreated={fetchTasks}
-          onCreateStart={() => setCreating(true)}
-          onEditStart={(id) => setUpdatingTaskId(id)}
+          onSave={handleSave}
+          onDelete={handleDelete}
         />
       </DndContext>
     </>

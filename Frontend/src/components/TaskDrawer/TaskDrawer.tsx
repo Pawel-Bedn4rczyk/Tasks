@@ -13,7 +13,6 @@ import {
 import { useForm } from "@mantine/form";
 import { IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { createTask, deleteTask, updateTask } from "../../api";
 import { type ITask } from "../Task/Task";
 import { colors } from "../../colors";
 
@@ -25,15 +24,13 @@ const priorityColors: Record<ITask["priority"], string> = {
 
 interface ITaskDrawerProps {
   opened: boolean;
-  column: ITask["column"];
   task?: ITask;
   onClose: () => void;
-  onCreated: () => void;
-  onCreateStart?: () => void;
-  onEditStart?: (id: number) => void;
+  onSave: (values: ITaskFormValues) => void;
+  onDelete?: (id: number) => void;
 }
 
-interface ITaskFormValues {
+export interface ITaskFormValues {
   title: string;
   description: string;
   priority: ITask["priority"];
@@ -47,16 +44,12 @@ const priorityOptions: { value: ITask["priority"]; label: string }[] = [
 
 export function TaskDrawer({
   opened,
-  column,
   task,
   onClose,
-  onCreated,
-  onCreateStart,
-  onEditStart,
+  onSave,
+  onDelete,
 }: ITaskDrawerProps) {
-  const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const isEditing = !!task;
 
   const form = useForm<ITaskFormValues>({
@@ -93,41 +86,16 @@ export function TaskDrawer({
     }
   }, [task]);
 
-  async function handleSubmit(
-    values: ReturnType<typeof form.getTransformedValues>,
-  ) {
-    setLoading(true);
-
-    if (isEditing) {
-      onEditStart?.(task.id);
-    } else {
-      onCreateStart?.();
-    }
-
-    const result = isEditing
-      ? await updateTask(task.id, values)
-      : await createTask({ ...values, column });
-
-    setLoading(false);
-
-    if (result) {
-      form.reset();
-      onCreated();
-      onClose();
-    }
+  function handleSubmit(values: ReturnType<typeof form.getTransformedValues>) {
+    onSave(values);
+    form.reset();
+    onClose();
   }
 
   function handleDelete() {
-    setDeleting(true);
-    deleteTask(task!.id).then((success) => {
-      setDeleting(false);
-      if (success) {
-        form.reset();
-        setConfirmOpen(false);
-        onCreated();
-        onClose();
-      }
-    });
+    setConfirmOpen(false);
+    onClose();
+    onDelete?.(task!.id);
   }
 
   function handleClose() {
@@ -219,7 +187,6 @@ export function TaskDrawer({
               type="submit"
               mt="sm"
               fullWidth
-              loading={loading}
               variant="default"
               leftSection={<IconDeviceFloppy size={16} />}
             >
@@ -240,7 +207,7 @@ export function TaskDrawer({
           Are you sure you want to delete this task?
         </Text>
         <Group justify="flex-end">
-          <Button color="red" loading={deleting} onClick={handleDelete}>
+          <Button color="red" onClick={handleDelete}>
             Yes
           </Button>
           <Button variant="default" onClick={() => setConfirmOpen(false)}>
