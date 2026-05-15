@@ -20,13 +20,13 @@ class TaskController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
+            'title'       => ['required', 'string', 'max:50', 'not_regex:/^\s*$/'],
             'description' => ['nullable', 'string', 'max:2000'],
             'priority'    => 'required|in:high,medium,low',
             'column'      => 'required|in:todo,in_progress,done',
         ], [
             'title.required'  => 'Title is required',
-            'title.max'       => 'Title cannot exceed 30 characters',
+            'title.max'       => 'Title cannot exceed 50 characters',
             'title.not_regex' => 'Title cannot be blank',
         ]);
 
@@ -49,12 +49,12 @@ class TaskController extends Controller
     public function update(Request $request, Task $task): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => ['required', 'string', 'max:30', 'not_regex:/^\s*$/'],
+            'title'       => ['required', 'string', 'max:50', 'not_regex:/^\s*$/'],
             'description' => ['nullable', 'string', 'max:2000'],
             'priority'    => 'required|in:high,medium,low',
         ], [
             'title.required'  => 'Title is required',
-            'title.max'       => 'Title cannot exceed 30 characters',
+            'title.max'       => 'Title cannot exceed 50 characters',
             'title.not_regex' => 'Title cannot be blank',
         ]);
 

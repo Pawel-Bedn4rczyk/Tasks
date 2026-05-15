@@ -42,9 +42,9 @@ it('requires a title', function () {
         ->assertJsonValidationErrors('title');
 });
 
-it('rejects a title longer than 30 characters', function () {
+it('rejects a title longer than 50 characters', function () {
     $this->postJson('/api/tasks', [
-        'title'    => str_repeat('a', 31),
+        'title'    => str_repeat('a', 51),
         'priority' => 'medium',
         'column'   => 'todo',
     ])->assertUnprocessable()

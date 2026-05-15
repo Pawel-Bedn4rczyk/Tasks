@@ -142,6 +142,7 @@ export function TaskDrawer({
             <TextInput
               label="Title"
               placeholder="Task title"
+              maxLength={50}
               {...form.getInputProps("title")}
             />
             <Stack gap={4}>
