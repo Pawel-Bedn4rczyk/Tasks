@@ -175,7 +175,7 @@ export function Board() {
             const colTasks = tasks.filter((t) => t.column === col.id);
 
             return (
-              <Stack key={col.id} style={{ flex: 1 }} gap="sm">
+              <Stack key={col.id} style={{ flex: 1, width: "100%" }} gap="sm">
                 <Group gap="xs">
                   <Box
                     style={{
