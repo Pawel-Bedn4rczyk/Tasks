@@ -23,6 +23,5 @@ npm run dev
 
 ```bash
 cd Backend
-composer install
 php artisan test
 ```
